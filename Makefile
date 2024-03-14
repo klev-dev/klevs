@@ -12,3 +12,8 @@ test:
 
 clean: 
 	rm -rf ./.direnv/go/bin/
+
+.PHONY: gen
+gen:
+	protoc --go_out=. --go_opt=module=go.klev.dev/klevs --go-grpc_out=. --go-grpc_opt=module=go.klev.dev/klevs proto/*.proto
+	go fmt ./...

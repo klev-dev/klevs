@@ -18,6 +18,8 @@
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
             go
+            protoc-gen-go
+            protoc-gen-go-grpc
           ];
         };
       });

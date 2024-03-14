@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+option go_package = "go.klev.dev/klevs/api";
+
+package api;
+
+service Logs {
+  rpc List(LogsListReq) returns (LogsListResp) {}
+}
+
+message LogsListReq {
+}
+
+message LogsListResp {
+}
