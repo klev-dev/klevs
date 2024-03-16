@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option go_package = "go.klev.dev/klevs/api";
+
+import "google/protobuf/timestamp.proto";
+
+package api;
+
+message PublishMessage {
+  google.protobuf.Timestamp time = 2;
+  bytes key = 3;
+  bytes value = 4;
+}
+
+message ConsumeMessage {
+  int64 offset = 1;
+  google.protobuf.Timestamp time = 2;
+  bytes key = 3;
+  bytes value = 4;
+}
+
+service Messages {
+  rpc Publish(PublishRequest) returns (PublishResponse) {}
+  rpc Consume(ConsumeRequest) returns (ConsumeResponse) {}
+}
+
+message PublishRequest {
+  string log = 1;
+  repeated PublishMessage messages = 2;
+}
+
+message PublishResponse {
+  int64 next_offset = 1;
+}
+
+message ConsumeRequest {
+  string log = 1;
+  int64 offset = 2;
+  int64 max_count = 3;
+}
+
+message ConsumeResponse {
+  int64 next_offset = 1;
+  repeated ConsumeMessage messages = 2;
+}

@@ -21,7 +21,7 @@ func main() {
 
 	client := api.NewLogsClient(conn)
 
-	resp, err := client.List(context.TODO(), &api.LogsListReq{})
+	resp, err := client.List(context.TODO(), &api.LogsListRequest{})
 	if err != nil {
 		panic(err)
 	}

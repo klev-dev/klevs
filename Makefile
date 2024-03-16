@@ -15,5 +15,6 @@ clean:
 
 .PHONY: gen
 gen:
+	rm -rf ./api/*.pb.go
 	protoc --go_out=. --go_opt=module=go.klev.dev/klevs --go-grpc_out=. --go-grpc_opt=module=go.klev.dev/klevs proto/*.proto
 	go fmt ./...

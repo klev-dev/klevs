@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "go.klev.dev/klevs/api";
+
+package api;
+
+service Logs {
+  rpc List(LogsListRequest) returns (LogsListResponse) {}
+  rpc Create(LogsCreateRequest) returns (LogsCreateResponse) {}
+  rpc Delete(LogsDeleteRequest) returns (LogsDeleteResponse) {}
+}
+
+message LogsListRequest {
+}
+
+message LogsListResponse {
+  repeated string logs = 1;
+}
+
+message LogsCreateRequest {
+  string log = 1;
+}
+
+message LogsCreateResponse {
+}
+
+message LogsDeleteRequest {
+  string log = 1;
+}
+
+message LogsDeleteResponse {
+}
