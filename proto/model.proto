@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option go_package = "go.klev.dev/klevs/api";
+
+package api;
+
+message LogName {
+  string name = 1;
+  repeated string path = 2;
+}

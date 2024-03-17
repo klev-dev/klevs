@@ -4,6 +4,8 @@ option go_package = "go.klev.dev/klevs/api";
 
 package api;
 
+import "proto/model.proto";
+
 service Logs {
   rpc List(LogsListRequest) returns (LogsListResponse) {}
   rpc Create(LogsCreateRequest) returns (LogsCreateResponse) {}
@@ -14,18 +16,18 @@ message LogsListRequest {
 }
 
 message LogsListResponse {
-  repeated string logs = 1;
+  repeated LogName logs = 1;
 }
 
 message LogsCreateRequest {
-  string log = 1;
+  LogName log = 1;
 }
 
 message LogsCreateResponse {
 }
 
 message LogsDeleteRequest {
-  string log = 1;
+  LogName log = 1;
 }
 
 message LogsDeleteResponse {
