@@ -3,7 +3,6 @@ syntax = "proto3";
 option go_package = "go.klev.dev/klevs/api";
 
 import "google/protobuf/timestamp.proto";
-import "proto/model.proto";
 
 package api;
 
@@ -26,7 +25,7 @@ service Messages {
 }
 
 message PublishRequest {
-  LogName log = 1;
+  string name = 1;
   repeated PublishMessage messages = 2;
 }
 
@@ -35,7 +34,7 @@ message PublishResponse {
 }
 
 message ConsumeRequest {
-  LogName log = 1;
+  string name = 1;
   int64 offset = 2;
   int64 max_count = 3;
 }

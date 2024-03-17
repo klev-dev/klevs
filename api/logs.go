@@ -5,9 +5,9 @@ func (r *LogsListRequest) Validate() error {
 }
 
 func (r *LogsCreateRequest) Validate() error {
-	return r.Log.Validate()
+	return ValidateName(r.Name)
 }
 
 func (r *LogsDeleteRequest) Validate() error {
-	return r.Log.Validate()
+	return ValidateName(r.Name)
 }
