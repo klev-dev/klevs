@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.2
-// source: proto/logs.proto
+// source: protocol/grpc/logs.proto
 
-package api
+package grpc
 
 import (
 	context "context"
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Logs_List_FullMethodName   = "/api.Logs/List"
-	Logs_Create_FullMethodName = "/api.Logs/Create"
-	Logs_Delete_FullMethodName = "/api.Logs/Delete"
+	Logs_List_FullMethodName   = "/grpc.Logs/List"
+	Logs_Create_FullMethodName = "/grpc.Logs/Create"
+	Logs_Delete_FullMethodName = "/grpc.Logs/Delete"
 )
 
 // LogsClient is the client API for Logs service.
@@ -162,7 +162,7 @@ func _Logs_Delete_Handler(srv interface{}, ctx context.Context, dec func(interfa
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Logs_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.Logs",
+	ServiceName: "grpc.Logs",
 	HandlerType: (*LogsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -179,5 +179,5 @@ var Logs_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/logs.proto",
+	Metadata: "protocol/grpc/logs.proto",
 }

@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-option go_package = "go.klev.dev/klevs/api";
+option go_package = "go.klev.dev/klevs/protocol/grpc";
 
 import "google/protobuf/timestamp.proto";
 
-package api;
+package grpc;
 
 message PublishMessage {
   google.protobuf.Timestamp time = 2;

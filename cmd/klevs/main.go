@@ -1,17 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"log"
-	"net"
 	"os"
 
 	"github.com/spf13/pflag"
-	"go.klev.dev/klevs/api"
+	"go.klev.dev/klevs/protocol/grpc"
 	"go.klev.dev/klevs/server"
-
-	"google.golang.org/grpc"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -24,23 +22,23 @@ func main() {
 		panic(err)
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 9283))
+	logServer, err := server.New(*dataDir)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		panic(err)
 	}
 
-	var opts []grpc.ServerOption
-	// ...
-	grpcServer := grpc.NewServer(opts...)
-
-	api.RegisterLogsServer(grpcServer, &server.Logs{
-		DataDir: *dataDir,
-	})
-	api.RegisterMessagesServer(grpcServer, &server.Messages{
-		DataDir: *dataDir,
-	})
-
-	if err := grpcServer.Serve(lis); err != nil {
+	gServer, err := grpc.New(logServer)
+	if err != nil {
 		panic(err)
+	}
+
+	var g, ctx = errgroup.WithContext(context.Background())
+	g.Go(func() error {
+		return gServer.Run(ctx)
+	})
+
+	if err := g.Wait(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }

@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v4.25.2
-// source: proto/messages.proto
+// source: protocol/grpc/messages.proto
 
-package api
+package grpc
 
 import (
 	context "context"
@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Messages_Publish_FullMethodName = "/api.Messages/Publish"
-	Messages_Consume_FullMethodName = "/api.Messages/Consume"
+	Messages_Publish_FullMethodName = "/grpc.Messages/Publish"
+	Messages_Consume_FullMethodName = "/grpc.Messages/Consume"
 )
 
 // MessagesClient is the client API for Messages service.
@@ -129,7 +129,7 @@ func _Messages_Consume_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Messages_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.Messages",
+	ServiceName: "grpc.Messages",
 	HandlerType: (*MessagesServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -142,5 +142,5 @@ var Messages_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/messages.proto",
+	Metadata: "protocol/grpc/messages.proto",
 }
