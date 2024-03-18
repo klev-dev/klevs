@@ -8,7 +8,6 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/klev-dev/klevdb"
 	"golang.org/x/exp/maps"
 )
 
@@ -29,11 +28,10 @@ func New(dataDir string) (*Logs, error) {
 	for _, en := range entries {
 		if en.IsDir() {
 			logDir := filepath.Join(dataDir, en.Name())
-			klog, err := klevdb.Open(logDir, klevdb.Options{})
+			logs[en.Name()], err = NewLog(logDir)
 			if err != nil {
 				return nil, err
 			}
-			logs[en.Name()] = &Log{db: klog}
 		}
 	}
 
@@ -61,14 +59,11 @@ func (s *Logs) Create(ctx context.Context, name string) (*Log, error) {
 	}
 
 	logDir := filepath.Join(s.dataDir, name)
-	klog, err := klevdb.Open(logDir, klevdb.Options{
-		CreateDirs: true,
-	})
+	log, err := NewLog(logDir)
 	if err != nil {
 		return nil, err
 	}
 
-	log := &Log{db: klog}
 	s.logs[name] = log
 	return log, nil
 }
@@ -85,5 +80,18 @@ func (s *Logs) Get(ctx context.Context, name string) (*Log, error) {
 }
 
 func (s *Logs) Delete(ctx context.Context, name string) error {
+	log, err := s.Get(ctx, name)
+	if err != nil {
+		return err
+	}
+
+	if err := log.Delete(ctx); err != nil {
+		return err
+	}
+
+	s.logsMu.Lock()
+	defer s.logsMu.Unlock()
+
+	delete(s.logs, name)
 	return nil
 }
