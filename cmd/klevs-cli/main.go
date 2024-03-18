@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -21,70 +20,23 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := api.NewLogsClient(conn)
+	logs := api.NewLogsClient(conn)
+	messages := api.NewMessagesClient(conn)
 
-	rootCmd := &cobra.Command{
-		Use:   "klevs-cli",
-		Short: "klevs cli client",
-	}
-
-	rootCmd.AddCommand(logsCmd(client))
-
-	if err := rootCmd.Execute(); err != nil {
+	if err := rootCmd(logs, messages).Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func logsCmd(logs api.LogsClient) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "logs",
-		Short: "interact with logs",
+func rootCmd(logs api.LogsClient, messages api.MessagesClient) *cobra.Command {
+	rootCmd := &cobra.Command{
+		Use:   "klevs-cli",
+		Short: "klevs cli client",
 	}
 
-	cmd.AddCommand(logsListCmd(logs))
-	cmd.AddCommand(logsCreateCmd(logs))
+	rootCmd.AddCommand(logsCmd(logs))
+	rootCmd.AddCommand(messagesCmd(messages))
 
-	return cmd
-}
-
-func logsListCmd(logs api.LogsClient) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "list",
-		Short: "list logs",
-	}
-
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		resp, err := logs.List(context.TODO(), &api.LogsListRequest{})
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("resp:", resp)
-		return nil
-	}
-
-	return cmd
-}
-
-func logsCreateCmd(logs api.LogsClient) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "create <name>",
-		Short: "create new log",
-		Args:  cobra.ExactArgs(1),
-	}
-
-	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		resp, err := logs.Create(context.TODO(), &api.LogsCreateRequest{
-			Name: args[0],
-		})
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("resp:", resp)
-		return nil
-	}
-
-	return cmd
+	return rootCmd
 }
