@@ -11,23 +11,23 @@ import (
 	"google.golang.org/grpc"
 )
 
-func New(logServer *klevs.Logs) (protocol.Server, error) {
+func New(logs *klevs.Logs) (protocol.Server, error) {
 	var opts []grpc.ServerOption
 	// ...
-	gsrv := grpc.NewServer(opts...)
+	server := grpc.NewServer(opts...)
 
-	RegisterLogsServer(gsrv, &Logs{
-		Server: logServer,
+	RegisterLogsServer(server, &Logs{
+		Logs: logs,
 	})
-	RegisterMessagesServer(gsrv, &Messages{
-		Logs: logServer,
+	RegisterMessagesServer(server, &Messages{
+		Logs: logs,
 	})
 
-	return &grpcServer{gsrv}, nil
+	return &grpcServer{server}, nil
 }
 
 type grpcServer struct {
-	gsrv *grpc.Server
+	server *grpc.Server
 }
 
 func (s *grpcServer) Run(ctx context.Context) error {
@@ -38,8 +38,8 @@ func (s *grpcServer) Run(ctx context.Context) error {
 
 	go func() {
 		<-ctx.Done()
-		s.gsrv.GracefulStop()
+		s.server.GracefulStop()
 	}()
 
-	return s.gsrv.Serve(lis)
+	return s.server.Serve(lis)
 }

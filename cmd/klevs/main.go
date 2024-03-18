@@ -22,12 +22,12 @@ func main() {
 		panic(err)
 	}
 
-	logServer, err := klevs.New(*dataDir)
+	logs, err := klevs.New(*dataDir)
 	if err != nil {
 		panic(err)
 	}
 
-	gServer, err := grpc.New(logServer)
+	gServer, err := grpc.New(logs)
 	if err != nil {
 		panic(err)
 	}

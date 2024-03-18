@@ -8,7 +8,7 @@ import (
 
 type Logs struct {
 	UnsafeLogsServer
-	Server *klevs.Logs
+	*klevs.Logs
 }
 
 func (l *Logs) List(ctx context.Context, req *LogsListRequest) (*LogsListResponse, error) {
@@ -16,7 +16,7 @@ func (l *Logs) List(ctx context.Context, req *LogsListRequest) (*LogsListRespons
 		return nil, err
 	}
 
-	logs, err := l.Server.List(ctx)
+	logs, err := l.Logs.List(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (l *Logs) Create(ctx context.Context, req *LogsCreateRequest) (*LogsCreateR
 		return nil, err
 	}
 
-	_, err := l.Server.Create(ctx, req.Name)
+	_, err := l.Logs.Create(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (l *Logs) Delete(ctx context.Context, req *LogsDeleteRequest) (*LogsDeleteR
 		return nil, err
 	}
 
-	if err := l.Server.Delete(ctx, req.Name); err != nil {
+	if err := l.Logs.Delete(ctx, req.Name); err != nil {
 		return nil, err
 	}
 

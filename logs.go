@@ -15,7 +15,7 @@ import (
 type Logs struct {
 	dataDir string
 
-	logs   map[string]klevdb.Log
+	logs   map[string]*Log
 	logsMu sync.RWMutex
 }
 
@@ -25,15 +25,15 @@ func New(dataDir string) (*Logs, error) {
 		return nil, err
 	}
 
-	logs := make(map[string]klevdb.Log, len(entries))
+	logs := make(map[string]*Log, len(entries))
 	for _, en := range entries {
 		if en.IsDir() {
 			logDir := filepath.Join(dataDir, en.Name())
-			log, err := klevdb.Open(logDir, klevdb.Options{})
+			klog, err := klevdb.Open(logDir, klevdb.Options{})
 			if err != nil {
 				return nil, err
 			}
-			logs[en.Name()] = log
+			logs[en.Name()] = &Log{db: klog}
 		}
 	}
 
@@ -52,7 +52,7 @@ func (s *Logs) List(ctx context.Context) ([]string, error) {
 	return logs, nil
 }
 
-func (s *Logs) Create(ctx context.Context, name string) (klevdb.Log, error) {
+func (s *Logs) Create(ctx context.Context, name string) (*Log, error) {
 	s.logsMu.Lock()
 	defer s.logsMu.Unlock()
 
@@ -61,14 +61,27 @@ func (s *Logs) Create(ctx context.Context, name string) (klevdb.Log, error) {
 	}
 
 	logDir := filepath.Join(s.dataDir, name)
-	log, err := klevdb.Open(logDir, klevdb.Options{
+	klog, err := klevdb.Open(logDir, klevdb.Options{
 		CreateDirs: true,
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	log := &Log{db: klog}
 	s.logs[name] = log
 	return log, nil
+}
+
+func (s *Logs) Get(ctx context.Context, name string) (*Log, error) {
+	s.logsMu.RLock()
+	defer s.logsMu.RUnlock()
+
+	if log, ok := s.logs[name]; ok {
+		return log, nil
+	}
+
+	return nil, fmt.Errorf("log '%s' not found", name)
 }
 
 func (s *Logs) Delete(ctx context.Context, name string) error {
