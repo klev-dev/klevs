@@ -15,7 +15,9 @@ func messagesCmd(messages grpc.MessagesClient) *cobra.Command {
 	}
 
 	cmd.AddCommand(messagesPublishCmd(messages))
+	cmd.AddCommand(messagesNextOffsetCmd(messages))
 	cmd.AddCommand(messagesConsumeCmd(messages))
+	cmd.AddCommand(messagesGetByOffsetCmd(messages))
 
 	return cmd
 }
@@ -67,6 +69,28 @@ func messagesPublishCmd(messages grpc.MessagesClient) *cobra.Command {
 	return cmd
 }
 
+func messagesNextOffsetCmd(messages grpc.MessagesClient) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "next-offset <name>",
+		Short: "get next offset of log",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		resp, err := messages.NextOffset(cmd.Context(), &grpc.NextOffsetRequest{
+			Name: args[0],
+		})
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("resp:", resp)
+		return nil
+	}
+
+	return cmd
+}
+
 func messagesConsumeCmd(messages grpc.MessagesClient) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "consume <name>",
@@ -82,6 +106,31 @@ func messagesConsumeCmd(messages grpc.MessagesClient) *cobra.Command {
 			Name:     args[0],
 			Offset:   *offset,
 			MaxCount: *maxCount,
+		})
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("resp:", resp)
+		return nil
+	}
+
+	return cmd
+}
+
+func messagesGetByOffsetCmd(messages grpc.MessagesClient) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-by-offset <name>",
+		Short: "get message by offset",
+		Args:  cobra.ExactArgs(1),
+	}
+
+	offset := cmd.Flags().Int64("offset", klevdb.OffsetOldest, "offset to get (default oldest)")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		resp, err := messages.GetByOffset(cmd.Context(), &grpc.GetByOffsetRequest{
+			Name:   args[0],
+			Offset: *offset,
 		})
 		if err != nil {
 			return err

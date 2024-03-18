@@ -21,7 +21,10 @@ message ConsumeMessage {
 
 service Messages {
   rpc Publish(PublishRequest) returns (PublishResponse) {}
+  rpc NextOffset(NextOffsetRequest) returns (NextOffsetResponse) {}
+
   rpc Consume(ConsumeRequest) returns (ConsumeResponse) {}
+  rpc GetByOffset(GetByOffsetRequest) returns (GetByOffsetResponse) {}
 }
 
 message PublishRequest {
@@ -30,6 +33,14 @@ message PublishRequest {
 }
 
 message PublishResponse {
+  int64 next_offset = 1;
+}
+
+message NextOffsetRequest {
+  string name = 1;
+}
+
+message NextOffsetResponse {
   int64 next_offset = 1;
 }
 
@@ -42,4 +53,13 @@ message ConsumeRequest {
 message ConsumeResponse {
   int64 next_offset = 1;
   repeated ConsumeMessage messages = 2;
+}
+
+message GetByOffsetRequest {
+  string name = 1;
+  int64 offset = 2;
+}
+
+message GetByOffsetResponse {
+  ConsumeMessage message = 1;
 }

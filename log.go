@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/klev-dev/klevdb"
-	"github.com/klev-dev/klevdb/message"
 )
 
-type Message = message.Message
+type Message = klevdb.Message
+type Stats = klevdb.Stats
 
 type Log struct {
 	logDir string
@@ -33,32 +33,66 @@ func NewLog(logDir string) (*Log, error) {
 	}, nil
 }
 
-func (l *Log) Publish(ctx context.Context, msgs []Message) (int64, error) {
+func (l *Log) rlockAndValidate() error {
 	l.deleteMu.RLock()
-	defer l.deleteMu.RUnlock()
 
 	switch {
 	case l.deleted:
-		return message.OffsetInvalid, fmt.Errorf("topic already deleted")
+		l.deleteMu.RUnlock()
+		return fmt.Errorf("topic already deleted")
 	case l.closed:
-		return message.OffsetInvalid, fmt.Errorf("topic already closed")
+		l.deleteMu.RUnlock()
+		return fmt.Errorf("topic already closed")
 	}
+
+	return nil
+}
+
+func (l *Log) Publish(ctx context.Context, msgs []Message) (int64, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return klevdb.OffsetInvalid, err
+	}
+	defer l.deleteMu.RUnlock()
 
 	return l.db.Publish(msgs)
 }
 
-func (l *Log) Consume(ctx context.Context, offset int64, maxCount int64, poll time.Duration) (int64, []Message, error) {
-	l.deleteMu.RLock()
+func (l *Log) NextOffset(ctx context.Context) (int64, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return klevdb.OffsetInvalid, err
+	}
 	defer l.deleteMu.RUnlock()
 
-	switch {
-	case l.deleted:
-		return message.OffsetInvalid, nil, fmt.Errorf("topic already deleted")
-	case l.closed:
-		return message.OffsetInvalid, nil, fmt.Errorf("topic already closed")
+	return l.db.NextOffset()
+}
+
+func (l *Log) Consume(ctx context.Context, offset int64, maxCount int64, poll time.Duration) (int64, []Message, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return klevdb.OffsetInvalid, nil, err
 	}
+	defer l.deleteMu.RUnlock()
 
 	return l.db.Consume(offset, maxCount)
+}
+
+func (l *Log) GetByOffset(ctx context.Context, offset int64) (Message, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return klevdb.InvalidMessage, err
+	}
+	defer l.deleteMu.RUnlock()
+
+	return l.db.Get(offset)
+}
+
+// TODO other gets
+
+func (l *Log) Stat(ctx context.Context) (Stats, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return Stats{}, err
+	}
+	defer l.deleteMu.RUnlock()
+
+	return l.db.Stat()
 }
 
 func (l *Log) Delete(ctx context.Context) error {

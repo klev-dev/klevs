@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Messages_Publish_FullMethodName = "/grpc.Messages/Publish"
-	Messages_Consume_FullMethodName = "/grpc.Messages/Consume"
+	Messages_Publish_FullMethodName     = "/grpc.Messages/Publish"
+	Messages_NextOffset_FullMethodName  = "/grpc.Messages/NextOffset"
+	Messages_Consume_FullMethodName     = "/grpc.Messages/Consume"
+	Messages_GetByOffset_FullMethodName = "/grpc.Messages/GetByOffset"
 )
 
 // MessagesClient is the client API for Messages service.
@@ -28,7 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessagesClient interface {
 	Publish(ctx context.Context, in *PublishRequest, opts ...grpc.CallOption) (*PublishResponse, error)
+	NextOffset(ctx context.Context, in *NextOffsetRequest, opts ...grpc.CallOption) (*NextOffsetResponse, error)
 	Consume(ctx context.Context, in *ConsumeRequest, opts ...grpc.CallOption) (*ConsumeResponse, error)
+	GetByOffset(ctx context.Context, in *GetByOffsetRequest, opts ...grpc.CallOption) (*GetByOffsetResponse, error)
 }
 
 type messagesClient struct {
@@ -48,9 +52,27 @@ func (c *messagesClient) Publish(ctx context.Context, in *PublishRequest, opts .
 	return out, nil
 }
 
+func (c *messagesClient) NextOffset(ctx context.Context, in *NextOffsetRequest, opts ...grpc.CallOption) (*NextOffsetResponse, error) {
+	out := new(NextOffsetResponse)
+	err := c.cc.Invoke(ctx, Messages_NextOffset_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *messagesClient) Consume(ctx context.Context, in *ConsumeRequest, opts ...grpc.CallOption) (*ConsumeResponse, error) {
 	out := new(ConsumeResponse)
 	err := c.cc.Invoke(ctx, Messages_Consume_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messagesClient) GetByOffset(ctx context.Context, in *GetByOffsetRequest, opts ...grpc.CallOption) (*GetByOffsetResponse, error) {
+	out := new(GetByOffsetResponse)
+	err := c.cc.Invoke(ctx, Messages_GetByOffset_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +84,9 @@ func (c *messagesClient) Consume(ctx context.Context, in *ConsumeRequest, opts .
 // for forward compatibility
 type MessagesServer interface {
 	Publish(context.Context, *PublishRequest) (*PublishResponse, error)
+	NextOffset(context.Context, *NextOffsetRequest) (*NextOffsetResponse, error)
 	Consume(context.Context, *ConsumeRequest) (*ConsumeResponse, error)
+	GetByOffset(context.Context, *GetByOffsetRequest) (*GetByOffsetResponse, error)
 	mustEmbedUnimplementedMessagesServer()
 }
 
@@ -73,8 +97,14 @@ type UnimplementedMessagesServer struct {
 func (UnimplementedMessagesServer) Publish(context.Context, *PublishRequest) (*PublishResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
 }
+func (UnimplementedMessagesServer) NextOffset(context.Context, *NextOffsetRequest) (*NextOffsetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NextOffset not implemented")
+}
 func (UnimplementedMessagesServer) Consume(context.Context, *ConsumeRequest) (*ConsumeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Consume not implemented")
+}
+func (UnimplementedMessagesServer) GetByOffset(context.Context, *GetByOffsetRequest) (*GetByOffsetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByOffset not implemented")
 }
 func (UnimplementedMessagesServer) mustEmbedUnimplementedMessagesServer() {}
 
@@ -107,6 +137,24 @@ func _Messages_Publish_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Messages_NextOffset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NextOffsetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessagesServer).NextOffset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Messages_NextOffset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessagesServer).NextOffset(ctx, req.(*NextOffsetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Messages_Consume_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConsumeRequest)
 	if err := dec(in); err != nil {
@@ -125,6 +173,24 @@ func _Messages_Consume_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Messages_GetByOffset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByOffsetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessagesServer).GetByOffset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Messages_GetByOffset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessagesServer).GetByOffset(ctx, req.(*GetByOffsetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Messages_ServiceDesc is the grpc.ServiceDesc for Messages service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -137,8 +203,16 @@ var Messages_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Messages_Publish_Handler,
 		},
 		{
+			MethodName: "NextOffset",
+			Handler:    _Messages_NextOffset_Handler,
+		},
+		{
 			MethodName: "Consume",
 			Handler:    _Messages_Consume_Handler,
+		},
+		{
+			MethodName: "GetByOffset",
+			Handler:    _Messages_GetByOffset_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

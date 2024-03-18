@@ -34,6 +34,20 @@ func (m *Messages) Publish(ctx context.Context, req *PublishRequest) (*PublishRe
 	return &PublishResponse{NextOffset: nextOffset}, nil
 }
 
+func (m *Messages) NextOffset(ctx context.Context, req *NextOffsetRequest) (*NextOffsetResponse, error) {
+	log, err := m.Logs.Get(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	nextOffset, err := log.NextOffset(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &NextOffsetResponse{NextOffset: nextOffset}, nil
+}
+
 func (m *Messages) Consume(ctx context.Context, req *ConsumeRequest) (*ConsumeResponse, error) {
 	log, err := m.Logs.Get(ctx, req.Name)
 	if err != nil {
@@ -58,5 +72,28 @@ func (m *Messages) Consume(ctx context.Context, req *ConsumeRequest) (*ConsumeRe
 	return &ConsumeResponse{
 		NextOffset: nextOffset,
 		Messages:   outMsgs,
+	}, nil
+}
+
+func (m *Messages) GetByOffset(ctx context.Context, req *GetByOffsetRequest) (*GetByOffsetResponse, error) {
+	log, err := m.Logs.Get(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	msg, err := log.GetByOffset(ctx, req.Offset)
+	if err != nil {
+		return nil, err
+	}
+
+	outMsg := &ConsumeMessage{
+		Offset: msg.Offset,
+		Time:   timestamppb.New(msg.Time),
+		Key:    msg.Key,
+		Value:  msg.Value,
+	}
+
+	return &GetByOffsetResponse{
+		Message: outMsg,
 	}, nil
 }
