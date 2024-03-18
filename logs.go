@@ -51,6 +51,10 @@ func (s *Logs) List(ctx context.Context) ([]string, error) {
 }
 
 func (s *Logs) Create(ctx context.Context, name string) (*Log, error) {
+	if err := ValidateName(name); err != nil {
+		return nil, err
+	}
+
 	s.logsMu.Lock()
 	defer s.logsMu.Unlock()
 

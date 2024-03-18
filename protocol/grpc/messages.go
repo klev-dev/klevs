@@ -13,10 +13,6 @@ type Messages struct {
 }
 
 func (m *Messages) Publish(ctx context.Context, req *PublishRequest) (*PublishResponse, error) {
-	if err := req.Validate(); err != nil {
-		return nil, err
-	}
-
 	log, err := m.Logs.Get(ctx, req.Name)
 	if err != nil {
 		return nil, err
@@ -39,10 +35,6 @@ func (m *Messages) Publish(ctx context.Context, req *PublishRequest) (*PublishRe
 }
 
 func (m *Messages) Consume(ctx context.Context, req *ConsumeRequest) (*ConsumeResponse, error) {
-	if err := req.Validate(); err != nil {
-		return nil, err
-	}
-
 	log, err := m.Logs.Get(ctx, req.Name)
 	if err != nil {
 		return nil, err
