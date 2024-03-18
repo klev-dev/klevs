@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"github.com/spf13/pflag"
+	"go.klev.dev/klevs/pkg/logs"
 	"go.klev.dev/klevs/protocol/grpc"
-	"go.klev.dev/klevs/server"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,7 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	logServer, err := server.New(*dataDir)
+	logServer, err := logs.New(*dataDir)
 	if err != nil {
 		panic(err)
 	}
