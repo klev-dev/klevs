@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 
-	"go.klev.dev/klevs/pkg/logs"
+	"go.klev.dev/klevs"
 )
 
 type Messages struct {
 	UnsafeMessagesServer
-	*logs.Server
+	*klevs.Logs
 }
 
 func (m *Messages) Publish(ctx context.Context, req *PublishRequest) (*PublishResponse, error) {

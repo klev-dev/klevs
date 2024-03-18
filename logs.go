@@ -1,24 +1,25 @@
-package logs
+package klevs
 
 import (
 	"context"
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sync"
 
 	"github.com/klev-dev/klevdb"
 	"golang.org/x/exp/maps"
 )
 
-type Server struct {
+type Logs struct {
 	dataDir string
 
 	logs   map[string]klevdb.Log
 	logsMu sync.RWMutex
 }
 
-func New(dataDir string) (*Server, error) {
+func New(dataDir string) (*Logs, error) {
 	entries, err := os.ReadDir(dataDir)
 	if err != nil {
 		return nil, err
@@ -36,20 +37,22 @@ func New(dataDir string) (*Server, error) {
 		}
 	}
 
-	return &Server{
+	return &Logs{
 		dataDir: dataDir,
 		logs:    logs,
 	}, nil
 }
 
-func (s *Server) List(ctx context.Context) ([]string, error) {
+func (s *Logs) List(ctx context.Context) ([]string, error) {
 	s.logsMu.RLock()
 	defer s.logsMu.RUnlock()
 
-	return maps.Keys(s.logs), nil
+	logs := maps.Keys(s.logs)
+	slices.Sort(logs)
+	return logs, nil
 }
 
-func (s *Server) Create(ctx context.Context, name string) (klevdb.Log, error) {
+func (s *Logs) Create(ctx context.Context, name string) (klevdb.Log, error) {
 	s.logsMu.Lock()
 	defer s.logsMu.Unlock()
 
@@ -68,6 +71,6 @@ func (s *Server) Create(ctx context.Context, name string) (klevdb.Log, error) {
 	return log, nil
 }
 
-func (s *Server) Delete(ctx context.Context, name string) error {
+func (s *Logs) Delete(ctx context.Context, name string) error {
 	return nil
 }

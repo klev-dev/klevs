@@ -3,12 +3,12 @@ package grpc
 import (
 	"context"
 
-	"go.klev.dev/klevs/pkg/logs"
+	"go.klev.dev/klevs"
 )
 
 type Logs struct {
 	UnsafeLogsServer
-	Server *logs.Server
+	Server *klevs.Logs
 }
 
 func (l *Logs) List(ctx context.Context, req *LogsListRequest) (*LogsListResponse, error) {

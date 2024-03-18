@@ -6,12 +6,12 @@ import (
 	"log"
 	"net"
 
-	"go.klev.dev/klevs/pkg/logs"
+	"go.klev.dev/klevs"
 	"go.klev.dev/klevs/protocol"
 	"google.golang.org/grpc"
 )
 
-func New(logServer *logs.Server) (protocol.Server, error) {
+func New(logServer *klevs.Logs) (protocol.Server, error) {
 	var opts []grpc.ServerOption
 	// ...
 	gsrv := grpc.NewServer(opts...)
@@ -20,7 +20,7 @@ func New(logServer *logs.Server) (protocol.Server, error) {
 		Server: logServer,
 	})
 	RegisterMessagesServer(gsrv, &Messages{
-		Server: logServer,
+		Logs: logServer,
 	})
 
 	return &grpcServer{gsrv}, nil
