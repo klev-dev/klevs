@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"go.klev.dev/klevs/protocol/grpc"
+	"google.golang.org/protobuf/encoding/prototext"
 )
 
 func logsCmd(logs grpc.LogsClient) *cobra.Command {
@@ -32,7 +33,7 @@ func logsListCmd(logs grpc.LogsClient) *cobra.Command {
 			return err
 		}
 
-		fmt.Println("resp:", resp)
+		fmt.Println(prototext.Format(resp))
 		return nil
 	}
 
@@ -54,7 +55,7 @@ func logsCreateCmd(logs grpc.LogsClient) *cobra.Command {
 			return err
 		}
 
-		fmt.Println("resp:", resp)
+		fmt.Println(prototext.Format(resp))
 		return nil
 	}
 
@@ -76,7 +77,7 @@ func logsDeleteCmd(logs grpc.LogsClient) *cobra.Command {
 			return err
 		}
 
-		fmt.Println("resp:", resp)
+		fmt.Println(prototext.Format(resp))
 		return nil
 	}
 

@@ -97,3 +97,49 @@ func (m *Messages) GetByOffset(ctx context.Context, req *GetByOffsetRequest) (*G
 		Message: outMsg,
 	}, nil
 }
+
+func (m *Messages) GetByKey(ctx context.Context, req *GetByKeyRequest) (*GetByKeyResponse, error) {
+	log, err := m.Logs.Get(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	msg, err := log.GetByKey(ctx, req.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	outMsg := &ConsumeMessage{
+		Offset: msg.Offset,
+		Time:   timestamppb.New(msg.Time),
+		Key:    msg.Key,
+		Value:  msg.Value,
+	}
+
+	return &GetByKeyResponse{
+		Message: outMsg,
+	}, nil
+}
+
+func (m *Messages) GetByTime(ctx context.Context, req *GetByTimeRequest) (*GetByTimeResponse, error) {
+	log, err := m.Logs.Get(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	msg, err := log.GetByTime(ctx, req.Time.AsTime())
+	if err != nil {
+		return nil, err
+	}
+
+	outMsg := &ConsumeMessage{
+		Offset: msg.Offset,
+		Time:   timestamppb.New(msg.Time),
+		Key:    msg.Key,
+		Value:  msg.Value,
+	}
+
+	return &GetByTimeResponse{
+		Message: outMsg,
+	}, nil
+}

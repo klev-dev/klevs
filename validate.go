@@ -15,9 +15,6 @@ func ValidateName(name string) error {
 		case r >= 'A' && r <= 'Z':
 		case r >= 'a' && r <= 'z':
 		case r == '.', r == '_', r == '-':
-			if i == 0 {
-				return fmt.Errorf("at %d: %#U invalid character", i, r)
-			}
 		default:
 			return fmt.Errorf("at %d: %#U invalid character", i, r)
 		}

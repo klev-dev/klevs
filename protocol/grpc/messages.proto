@@ -25,6 +25,8 @@ service Messages {
 
   rpc Consume(ConsumeRequest) returns (ConsumeResponse) {}
   rpc GetByOffset(GetByOffsetRequest) returns (GetByOffsetResponse) {}
+  rpc GetByKey(GetByKeyRequest) returns (GetByKeyResponse) {}
+  rpc GetByTime(GetByTimeRequest) returns (GetByTimeResponse) {}
 }
 
 message PublishRequest {
@@ -61,5 +63,23 @@ message GetByOffsetRequest {
 }
 
 message GetByOffsetResponse {
+  ConsumeMessage message = 1;
+}
+
+message GetByKeyRequest {
+  string name = 1;
+  bytes key = 3;
+}
+
+message GetByKeyResponse {
+  ConsumeMessage message = 1;
+}
+
+message GetByTimeRequest {
+  string name = 1;
+  google.protobuf.Timestamp time = 2;
+}
+
+message GetByTimeResponse {
   ConsumeMessage message = 1;
 }

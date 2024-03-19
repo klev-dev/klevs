@@ -23,7 +23,9 @@ type Log struct {
 }
 
 func NewLog(logDir string) (*Log, error) {
-	db, err := klevdb.Open(logDir, klevdb.Options{})
+	db, err := klevdb.Open(logDir, klevdb.Options{
+		CreateDirs: true,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +86,23 @@ func (l *Log) GetByOffset(ctx context.Context, offset int64) (Message, error) {
 	return l.db.Get(offset)
 }
 
-// TODO other gets
+func (l *Log) GetByKey(ctx context.Context, key []byte) (Message, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return klevdb.InvalidMessage, err
+	}
+	defer l.deleteMu.RUnlock()
+
+	return l.db.GetByKey(key)
+}
+
+func (l *Log) GetByTime(ctx context.Context, start time.Time) (Message, error) {
+	if err := l.rlockAndValidate(); err != nil {
+		return klevdb.InvalidMessage, err
+	}
+	defer l.deleteMu.RUnlock()
+
+	return l.db.GetByTime(start)
+}
 
 func (l *Log) Stat(ctx context.Context) (Stats, error) {
 	if err := l.rlockAndValidate(); err != nil {

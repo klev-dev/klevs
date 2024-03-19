@@ -23,6 +23,8 @@ const (
 	Messages_NextOffset_FullMethodName  = "/grpc.Messages/NextOffset"
 	Messages_Consume_FullMethodName     = "/grpc.Messages/Consume"
 	Messages_GetByOffset_FullMethodName = "/grpc.Messages/GetByOffset"
+	Messages_GetByKey_FullMethodName    = "/grpc.Messages/GetByKey"
+	Messages_GetByTime_FullMethodName   = "/grpc.Messages/GetByTime"
 )
 
 // MessagesClient is the client API for Messages service.
@@ -33,6 +35,8 @@ type MessagesClient interface {
 	NextOffset(ctx context.Context, in *NextOffsetRequest, opts ...grpc.CallOption) (*NextOffsetResponse, error)
 	Consume(ctx context.Context, in *ConsumeRequest, opts ...grpc.CallOption) (*ConsumeResponse, error)
 	GetByOffset(ctx context.Context, in *GetByOffsetRequest, opts ...grpc.CallOption) (*GetByOffsetResponse, error)
+	GetByKey(ctx context.Context, in *GetByKeyRequest, opts ...grpc.CallOption) (*GetByKeyResponse, error)
+	GetByTime(ctx context.Context, in *GetByTimeRequest, opts ...grpc.CallOption) (*GetByTimeResponse, error)
 }
 
 type messagesClient struct {
@@ -79,6 +83,24 @@ func (c *messagesClient) GetByOffset(ctx context.Context, in *GetByOffsetRequest
 	return out, nil
 }
 
+func (c *messagesClient) GetByKey(ctx context.Context, in *GetByKeyRequest, opts ...grpc.CallOption) (*GetByKeyResponse, error) {
+	out := new(GetByKeyResponse)
+	err := c.cc.Invoke(ctx, Messages_GetByKey_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *messagesClient) GetByTime(ctx context.Context, in *GetByTimeRequest, opts ...grpc.CallOption) (*GetByTimeResponse, error) {
+	out := new(GetByTimeResponse)
+	err := c.cc.Invoke(ctx, Messages_GetByTime_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MessagesServer is the server API for Messages service.
 // All implementations must embed UnimplementedMessagesServer
 // for forward compatibility
@@ -87,6 +109,8 @@ type MessagesServer interface {
 	NextOffset(context.Context, *NextOffsetRequest) (*NextOffsetResponse, error)
 	Consume(context.Context, *ConsumeRequest) (*ConsumeResponse, error)
 	GetByOffset(context.Context, *GetByOffsetRequest) (*GetByOffsetResponse, error)
+	GetByKey(context.Context, *GetByKeyRequest) (*GetByKeyResponse, error)
+	GetByTime(context.Context, *GetByTimeRequest) (*GetByTimeResponse, error)
 	mustEmbedUnimplementedMessagesServer()
 }
 
@@ -105,6 +129,12 @@ func (UnimplementedMessagesServer) Consume(context.Context, *ConsumeRequest) (*C
 }
 func (UnimplementedMessagesServer) GetByOffset(context.Context, *GetByOffsetRequest) (*GetByOffsetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByOffset not implemented")
+}
+func (UnimplementedMessagesServer) GetByKey(context.Context, *GetByKeyRequest) (*GetByKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByKey not implemented")
+}
+func (UnimplementedMessagesServer) GetByTime(context.Context, *GetByTimeRequest) (*GetByTimeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByTime not implemented")
 }
 func (UnimplementedMessagesServer) mustEmbedUnimplementedMessagesServer() {}
 
@@ -191,6 +221,42 @@ func _Messages_GetByOffset_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Messages_GetByKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessagesServer).GetByKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Messages_GetByKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessagesServer).GetByKey(ctx, req.(*GetByKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Messages_GetByTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByTimeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MessagesServer).GetByTime(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Messages_GetByTime_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessagesServer).GetByTime(ctx, req.(*GetByTimeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Messages_ServiceDesc is the grpc.ServiceDesc for Messages service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +279,14 @@ var Messages_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetByOffset",
 			Handler:    _Messages_GetByOffset_Handler,
+		},
+		{
+			MethodName: "GetByKey",
+			Handler:    _Messages_GetByKey_Handler,
+		},
+		{
+			MethodName: "GetByTime",
+			Handler:    _Messages_GetByTime_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
